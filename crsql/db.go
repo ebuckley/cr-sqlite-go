@@ -3,6 +3,7 @@ package crsql
 import (
 	"database/sql"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/mattn/go-sqlite3"
 )
 
@@ -14,6 +15,9 @@ func init() {
 	})
 }
 
+// New will create the database file if it doesn't exist, and return a connection to it.
+// If schema is not empty, it will be executed on the database.
+// The crsqlite extension will be loaded automagically.
 func New(file string, schema string) (*sql.DB, error) {
 	connStr := fmt.Sprintf("file:%s?writable_schema=true", file)
 	// we use plain old sql
@@ -32,6 +36,7 @@ func New(file string, schema string) (*sql.DB, error) {
 	return conn, nil
 }
 
+// GetDBVersion will return the version of the database.
 func GetDBVersion(conn *sql.DB) (int, error) {
 	var ver int
 	r, err := conn.Query(`SELECT crsql_db_version()`)
@@ -47,17 +52,22 @@ func GetDBVersion(conn *sql.DB) (int, error) {
 	return ver, err
 }
 
-func GetPeerID(conn *sql.DB) ([]byte, error) {
-	r, err := conn.Query("SELECT crsql_site_id")
+func GetSiteID(conn *sql.DB) (uuid.UUID, error) {
+	r, err := conn.Query("SELECT crsql_site_id()")
 	if err != nil {
-		return nil, err
+		return uuid.Nil, err
 	}
 	r.Next()
-	var res []byte
+	res := make([]byte, 16)
 	err = r.Scan(&res)
 	if err != nil {
-		return nil, err
+		return uuid.Nil, err
 	}
 	defer r.Close()
-	return res, nil
+
+	u, err := uuid.FromBytes(res)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return u, nil
 }

@@ -1,8 +1,12 @@
 package crsql
 
 import (
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"os"
+	"path"
 	"testing"
+	"time"
 )
 
 var schema = `
@@ -110,4 +114,58 @@ func TestSimpleInsertMerge(t *testing.T) {
 		t.Fatal(err)
 	}
 	r.Close()
+}
+
+func TestSideID(t *testing.T) {
+	newDb, err := New(":memory:", schema)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	siteID, err := GetSiteID(newDb)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	otherDb, err := New(":memory:", schema)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	otherID, err := GetSiteID(otherDb)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if siteID == otherID {
+		t.Fatal("Site IDs should def not be the same: ", siteID, "other", otherID)
+	}
+}
+
+func TestOpenCloseIdentity(t *testing.T) {
+	testDB := path.Join(os.TempDir(), fmt.Sprintf("testdb-%d.db", time.Now().UnixNano()))
+	os.Remove(testDB)
+	first, err := New(testDB, schema)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, err := GetSiteID(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	first.Close()
+
+	first, err = New(testDB, ``)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id2, err := GetSiteID(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if id != id2 {
+		t.Fatal("Site IDs should be the same: ", id, "other", id2)
+	}
+
 }
