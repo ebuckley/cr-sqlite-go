@@ -30,7 +30,7 @@ func main() {
 
 	slog.Info("Started server on", "port", *port)
 
-	err = http.ListenAndServe(listenOn, mux)
+	err = http.ListenAndServe(listenOn, cors(mux))
 	if err != nil {
 		slog.Error("failed to serve:", "err", err)
 		os.Exit(1)
