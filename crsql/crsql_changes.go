@@ -3,23 +3,24 @@ package crsql
 import (
 	"database/sql"
 	"fmt"
+	api "github.com/ebuckley/crsqlite-go/gen/api/v1"
 )
 
-type Change struct {
-	Table      sql.NullString
-	PK         sql.RawBytes
-	CID        sql.NullString
-	Val        *any
-	ColVersion sql.NullInt64
-	DBVersion  sql.NullInt64
-	SiteID     sql.RawBytes
-	CL         sql.NullInt64
-	Seq        sql.NullInt64
-}
+//type Change struct {
+//	Table      sql.NullString
+//	PK         sql.RawBytes
+//	CID        sql.NullString
+//	Val        *any
+//	ColVersion sql.NullInt64
+//	DBVersion  sql.NullInt64
+//	SiteID     sql.RawBytes
+//	CL         sql.NullInt64
+//	Seq        sql.NullInt64
+//}
 
-func GetChanges(conn *sql.DB, currentVersion int) ([]Change, error) {
+func GetChanges(conn *sql.DB, currentVersion int) ([]*api.Change, error) {
 	// raw rows to insert into other database
-	rs := make([]Change, 0)
+	rs := make([]*api.Change, 0)
 
 	// we should be able to extract the changelog
 	result, err := conn.Query("SELECT * FROM crsql_changes WHERE db_version > ? ", currentVersion)
@@ -27,13 +28,13 @@ func GetChanges(conn *sql.DB, currentVersion int) ([]Change, error) {
 		return rs, err
 	}
 	for result.Next() {
-		ch := Change{}
-		err := result.Scan(&ch.Table, &ch.PK, &ch.CID, &ch.Val, &ch.ColVersion, &ch.DBVersion,
-			&ch.SiteID, &ch.CL, &ch.Seq)
+		ch := api.Change{}
+		err := result.Scan(&ch.Table, &ch.Pk, &ch.Cid, &ch.Val, &ch.ColVersion, &ch.DbVersion,
+			&ch.SiteId, &ch.Cl, &ch.Seq)
 		if err != nil {
 			return rs, err
 		}
-		rs = append(rs, ch)
+		rs = append(rs, &ch)
 	}
 	err = result.Close()
 	if err != nil {
@@ -42,7 +43,7 @@ func GetChanges(conn *sql.DB, currentVersion int) ([]Change, error) {
 	return rs, nil
 }
 
-func MergeChanges(conn *sql.DB, changes []Change) error {
+func MergeChanges(conn *sql.DB, changes []*api.Change) error {
 	tx, err := conn.Begin()
 	fail := func(tx *sql.Tx, err error) error {
 		if err != nil {
@@ -59,7 +60,7 @@ func MergeChanges(conn *sql.DB, changes []Change) error {
 		sql := `insert into crsql_changes
 		("table", "pk", "cid", "val", "col_version", "db_version", "site_id", "cl", "seq") 
 		values (?,?,?,?,?,?,?,?,?);`
-		_, err := tx.Exec(sql, r.Table, r.PK, r.CID, r.Val, r.ColVersion, r.DBVersion, r.SiteID, r.CL, r.Seq)
+		_, err := tx.Exec(sql, r.Table, r.Pk, r.Cid, r.Val, r.ColVersion, r.DbVersion, r.SiteId, r.Cl, r.Seq)
 		if err != nil {
 			return fail(tx, err)
 		}

@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option go_package = "github.com/ebuckley/crsqlite-go/gen/api/v1;api_v1";
+
+package api.v1;
+
+message Change {
+  string table = 1;
+  bytes pk = 2;
+  string cid = 3;
+  bytes val = 4;
+  int64 col_version = 5;
+  int64 db_version = 6;
+  bytes site_id = 7;
+  int64 cl = 8;
+  int64 seq = 9;
+}
+
+message  GetChangesRequest {
+  int64 db_version = 1;
+  string site_id = 2;
+}
+
+message GetSiteIDResponse {
+  string site_id = 1;
+}
+
+message MergeChangesRequest {
+  repeated Change changes = 1;
+}
+
+message GetChangesResponse {
+  repeated Change changes = 1;
+}
+message GetSiteIDRequest {
+}
+
+message  MergeChangesResponse {
+
+}
+service ChangeService {
+  rpc GetSiteID(GetSiteIDRequest) returns (GetSiteIDResponse) {}
+  rpc GetChanges(GetChangesRequest) returns (GetChangesResponse) {}
+  rpc MergeChanges (MergeChangesRequest) returns (MergeChangesResponse) {}
+}

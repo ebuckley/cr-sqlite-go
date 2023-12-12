@@ -16,6 +16,11 @@ select crsql_as_crr('foo');
 select crsql_as_crr('baz');
 `
 
+func TestMain(m *testing.M) {
+	Register("./crsqlite")
+	code := m.Run()
+	os.Exit(code)
+}
 func TestSimpleInsertMerge(t *testing.T) {
 	conn, err := New(":memory:", schema)
 	if err != nil {
@@ -29,7 +34,7 @@ func TestSimpleInsertMerge(t *testing.T) {
 
 	rs, err := GetChanges(conn, 0)
 	if err != nil {
-		t.Fatal(rs)
+		t.Fatal("expected no error but got", err)
 	}
 
 	// we should be able to apply the changelog to another database!
@@ -68,7 +73,7 @@ func TestSimpleInsertMerge(t *testing.T) {
 		sql := `insert into crsql_changes
 		("table", "pk", "cid", "val", "col_version", "db_version", "site_id", "cl", "seq") 
 		values (?,?,?,?,?,?,?,?,?);`
-		_, err := tx.Exec(sql, r.Table, r.PK, r.CID, r.Val, r.ColVersion, r.DBVersion, r.SiteID, r.CL, r.Seq)
+		_, err := tx.Exec(sql, r.Table, r.Pk, r.Cid, r.Val, r.ColVersion, r.DbVersion, r.SiteId, r.Cl, r.Seq)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -143,7 +148,7 @@ func TestSideID(t *testing.T) {
 }
 
 func TestOpenCloseIdentity(t *testing.T) {
-	testDB := path.Join(os.TempDir(), fmt.Sprintf("testdb-%d.db", time.Now().UnixNano()))
+	testDB := path.Join(os.TempDir(), fmt.Sprintf("testdb-%d.DB", time.Now().UnixNano()))
 	os.Remove(testDB)
 	first, err := New(testDB, schema)
 	if err != nil {

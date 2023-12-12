@@ -7,10 +7,10 @@ import (
 	"github.com/mattn/go-sqlite3"
 )
 
-func init() {
+func Register(crsqlitePath string) {
 	sql.Register("sqlite3_crsql", &sqlite3.SQLiteDriver{
 		Extensions: []string{
-			"./crsqlite",
+			crsqlitePath,
 		},
 	})
 }
