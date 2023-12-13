@@ -5,8 +5,16 @@ import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {TransportProvider, useQuery} from "@connectrpc/connect-query";
 import {getSiteID} from "./gen/api/v1/service-ChangeService_connectquery.ts";
 import {GetSiteIDRequest, GetSiteIDResponse} from "./gen/api/v1/service_pb.ts";
+import initWasm from "@vlcn.io/crsqlite-wasm";
 
-
+const crsqlite = await initWasm();
+const db = await crsqlite.open("test.db");
+const wasmSiteID = db.execA(`SELECT crsql_site_id();`);
+wasmSiteID.then(res => {
+  console.log(res)
+}, err => {
+  console.error(err)
+})
 const finalTransport = createConnectTransport({
   baseUrl: "http://localhost:50051",
 });
