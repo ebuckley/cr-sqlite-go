@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { GetChangesRequest, GetChangesResponse, GetSiteIDRequest, GetSiteIDResponse, MergeChangesRequest, MergeChangesResponse } from "./service_pb.js";
+import { GetChangesRequest, GetChangesResponse, GetSchemaRequest, GetSchemaResponse, GetSiteIDRequest, GetSiteIDResponse, MergeChangesRequest, MergeChangesResponse } from "./service_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -12,6 +12,15 @@ import { MethodKind } from "@bufbuild/protobuf";
 export const ChangeService = {
   typeName: "api.v1.ChangeService",
   methods: {
+    /**
+     * @generated from rpc api.v1.ChangeService.GetSchema
+     */
+    getSchema: {
+      name: "GetSchema",
+      I: GetSchemaRequest,
+      O: GetSchemaResponse,
+      kind: MethodKind.Unary,
+    },
     /**
      * @generated from rpc api.v1.ChangeService.GetSiteID
      */

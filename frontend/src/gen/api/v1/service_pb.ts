@@ -307,3 +307,77 @@ export class MergeChangesResponse extends Message<MergeChangesResponse> {
   }
 }
 
+/**
+ * @generated from message api.v1.GetSchemaRequest
+ */
+export class GetSchemaRequest extends Message<GetSchemaRequest> {
+  constructor(data?: PartialMessage<GetSchemaRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "api.v1.GetSchemaRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSchemaRequest {
+    return new GetSchemaRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSchemaRequest {
+    return new GetSchemaRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSchemaRequest {
+    return new GetSchemaRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSchemaRequest | PlainMessage<GetSchemaRequest> | undefined, b: GetSchemaRequest | PlainMessage<GetSchemaRequest> | undefined): boolean {
+    return proto3.util.equals(GetSchemaRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message api.v1.GetSchemaResponse
+ */
+export class GetSchemaResponse extends Message<GetSchemaResponse> {
+  /**
+   * @generated from field: string schema = 1;
+   */
+  schema = "";
+
+  /**
+   * @generated from field: uint64 version = 2;
+   */
+  version = protoInt64.zero;
+
+  constructor(data?: PartialMessage<GetSchemaResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "api.v1.GetSchemaResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "schema", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "version", kind: "scalar", T: 4 /* ScalarType.UINT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSchemaResponse {
+    return new GetSchemaResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSchemaResponse {
+    return new GetSchemaResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSchemaResponse {
+    return new GetSchemaResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSchemaResponse | PlainMessage<GetSchemaResponse> | undefined, b: GetSchemaResponse | PlainMessage<GetSchemaResponse> | undefined): boolean {
+    return proto3.util.equals(GetSchemaResponse, a, b);
+  }
+}
+

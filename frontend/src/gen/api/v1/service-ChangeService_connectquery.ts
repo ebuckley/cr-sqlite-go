@@ -4,7 +4,21 @@
 // @ts-nocheck
 
 import { MethodKind } from "@bufbuild/protobuf";
-import { GetChangesRequest, GetChangesResponse, GetSiteIDRequest, GetSiteIDResponse, MergeChangesRequest, MergeChangesResponse } from "./service_pb.js";
+import { GetChangesRequest, GetChangesResponse, GetSchemaRequest, GetSchemaResponse, GetSiteIDRequest, GetSiteIDResponse, MergeChangesRequest, MergeChangesResponse } from "./service_pb.js";
+
+/**
+ * @generated from rpc api.v1.ChangeService.GetSchema
+ */
+export const getSchema = { 
+  localName: "getSchema",
+  name: "GetSchema",
+  kind: MethodKind.Unary,
+  I: GetSchemaRequest,
+  O: GetSchemaResponse,
+  service: {
+    typeName: "api.v1.ChangeService"
+  }
+} as const;
 
 /**
  * @generated from rpc api.v1.ChangeService.GetSiteID

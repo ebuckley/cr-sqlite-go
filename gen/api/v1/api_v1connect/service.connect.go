@@ -33,6 +33,8 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ChangeServiceGetSchemaProcedure is the fully-qualified name of the ChangeService's GetSchema RPC.
+	ChangeServiceGetSchemaProcedure = "/api.v1.ChangeService/GetSchema"
 	// ChangeServiceGetSiteIDProcedure is the fully-qualified name of the ChangeService's GetSiteID RPC.
 	ChangeServiceGetSiteIDProcedure = "/api.v1.ChangeService/GetSiteID"
 	// ChangeServiceGetChangesProcedure is the fully-qualified name of the ChangeService's GetChanges
@@ -46,6 +48,7 @@ const (
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
 	changeServiceServiceDescriptor            = v1.File_api_v1_service_proto.Services().ByName("ChangeService")
+	changeServiceGetSchemaMethodDescriptor    = changeServiceServiceDescriptor.Methods().ByName("GetSchema")
 	changeServiceGetSiteIDMethodDescriptor    = changeServiceServiceDescriptor.Methods().ByName("GetSiteID")
 	changeServiceGetChangesMethodDescriptor   = changeServiceServiceDescriptor.Methods().ByName("GetChanges")
 	changeServiceMergeChangesMethodDescriptor = changeServiceServiceDescriptor.Methods().ByName("MergeChanges")
@@ -53,6 +56,7 @@ var (
 
 // ChangeServiceClient is a client for the api.v1.ChangeService service.
 type ChangeServiceClient interface {
+	GetSchema(context.Context, *connect.Request[v1.GetSchemaRequest]) (*connect.Response[v1.GetSchemaResponse], error)
 	GetSiteID(context.Context, *connect.Request[v1.GetSiteIDRequest]) (*connect.Response[v1.GetSiteIDResponse], error)
 	GetChanges(context.Context, *connect.Request[v1.GetChangesRequest]) (*connect.Response[v1.GetChangesResponse], error)
 	MergeChanges(context.Context, *connect.Request[v1.MergeChangesRequest]) (*connect.Response[v1.MergeChangesResponse], error)
@@ -68,6 +72,12 @@ type ChangeServiceClient interface {
 func NewChangeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ChangeServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &changeServiceClient{
+		getSchema: connect.NewClient[v1.GetSchemaRequest, v1.GetSchemaResponse](
+			httpClient,
+			baseURL+ChangeServiceGetSchemaProcedure,
+			connect.WithSchema(changeServiceGetSchemaMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 		getSiteID: connect.NewClient[v1.GetSiteIDRequest, v1.GetSiteIDResponse](
 			httpClient,
 			baseURL+ChangeServiceGetSiteIDProcedure,
@@ -91,9 +101,15 @@ func NewChangeServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // changeServiceClient implements ChangeServiceClient.
 type changeServiceClient struct {
+	getSchema    *connect.Client[v1.GetSchemaRequest, v1.GetSchemaResponse]
 	getSiteID    *connect.Client[v1.GetSiteIDRequest, v1.GetSiteIDResponse]
 	getChanges   *connect.Client[v1.GetChangesRequest, v1.GetChangesResponse]
 	mergeChanges *connect.Client[v1.MergeChangesRequest, v1.MergeChangesResponse]
+}
+
+// GetSchema calls api.v1.ChangeService.GetSchema.
+func (c *changeServiceClient) GetSchema(ctx context.Context, req *connect.Request[v1.GetSchemaRequest]) (*connect.Response[v1.GetSchemaResponse], error) {
+	return c.getSchema.CallUnary(ctx, req)
 }
 
 // GetSiteID calls api.v1.ChangeService.GetSiteID.
@@ -113,6 +129,7 @@ func (c *changeServiceClient) MergeChanges(ctx context.Context, req *connect.Req
 
 // ChangeServiceHandler is an implementation of the api.v1.ChangeService service.
 type ChangeServiceHandler interface {
+	GetSchema(context.Context, *connect.Request[v1.GetSchemaRequest]) (*connect.Response[v1.GetSchemaResponse], error)
 	GetSiteID(context.Context, *connect.Request[v1.GetSiteIDRequest]) (*connect.Response[v1.GetSiteIDResponse], error)
 	GetChanges(context.Context, *connect.Request[v1.GetChangesRequest]) (*connect.Response[v1.GetChangesResponse], error)
 	MergeChanges(context.Context, *connect.Request[v1.MergeChangesRequest]) (*connect.Response[v1.MergeChangesResponse], error)
@@ -124,6 +141,12 @@ type ChangeServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewChangeServiceHandler(svc ChangeServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	changeServiceGetSchemaHandler := connect.NewUnaryHandler(
+		ChangeServiceGetSchemaProcedure,
+		svc.GetSchema,
+		connect.WithSchema(changeServiceGetSchemaMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	changeServiceGetSiteIDHandler := connect.NewUnaryHandler(
 		ChangeServiceGetSiteIDProcedure,
 		svc.GetSiteID,
@@ -144,6 +167,8 @@ func NewChangeServiceHandler(svc ChangeServiceHandler, opts ...connect.HandlerOp
 	)
 	return "/api.v1.ChangeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ChangeServiceGetSchemaProcedure:
+			changeServiceGetSchemaHandler.ServeHTTP(w, r)
 		case ChangeServiceGetSiteIDProcedure:
 			changeServiceGetSiteIDHandler.ServeHTTP(w, r)
 		case ChangeServiceGetChangesProcedure:
@@ -158,6 +183,10 @@ func NewChangeServiceHandler(svc ChangeServiceHandler, opts ...connect.HandlerOp
 
 // UnimplementedChangeServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedChangeServiceHandler struct{}
+
+func (UnimplementedChangeServiceHandler) GetSchema(context.Context, *connect.Request[v1.GetSchemaRequest]) (*connect.Response[v1.GetSchemaResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ChangeService.GetSchema is not implemented"))
+}
 
 func (UnimplementedChangeServiceHandler) GetSiteID(context.Context, *connect.Request[v1.GetSiteIDRequest]) (*connect.Response[v1.GetSiteIDResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ChangeService.GetSiteID is not implemented"))

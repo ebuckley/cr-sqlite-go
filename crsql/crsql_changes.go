@@ -21,7 +21,6 @@ import (
 func GetChanges(conn *sql.DB, currentVersion int) ([]*api.Change, error) {
 	// raw rows to insert into other database
 	rs := make([]*api.Change, 0)
-
 	// we should be able to extract the changelog
 	result, err := conn.Query("SELECT * FROM crsql_changes WHERE db_version > ? ", currentVersion)
 	if err != nil {

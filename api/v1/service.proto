@@ -36,9 +36,16 @@ message GetSiteIDRequest {
 }
 
 message  MergeChangesResponse {
+}
 
+message GetSchemaRequest {}
+
+message GetSchemaResponse {
+  string schema = 1;
+  uint64 version = 2;
 }
 service ChangeService {
+  rpc GetSchema(GetSchemaRequest) returns (GetSchemaResponse) {}
   rpc GetSiteID(GetSiteIDRequest) returns (GetSiteIDResponse) {}
   rpc GetChanges(GetChangesRequest) returns (GetChangesResponse) {}
   rpc MergeChanges (MergeChangesRequest) returns (MergeChangesResponse) {}

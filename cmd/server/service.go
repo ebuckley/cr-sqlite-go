@@ -6,7 +6,7 @@ import (
 )
 
 var schema = `
-create table note (id primary key not null, title, body);
+create table if not exists note (id primary key not null, title, body);
 select crsql_as_crr('note');
 `
 var setup = sync.OnceFunc(func() {
@@ -19,5 +19,5 @@ func newSyncService() (*crsql.SyncService, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &crsql.SyncService{DB: db}, nil
+	return &crsql.SyncService{DB: db, Schema: schema}, nil
 }
