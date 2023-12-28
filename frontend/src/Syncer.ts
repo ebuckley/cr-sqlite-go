@@ -39,18 +39,21 @@ class Syncer {
     );
     return changes
   }
-  async pushChanges() {
-    // track what we last sent to the server so we only send the diff.
-    const lastSentVersion = BigInt(
+  get lastSentVersion() {
+    return BigInt(
       localStorage.getItem(
         this.lastSentVersionKey()
       ) ?? "0"
     );
+  }
+  async pushChanges() {
+    // track what we last sent to the server so we only send the diff.
 
-    const changes = await this.getLocalChanges(lastSentVersion);
-
-    console.log(`Sending ${changes.length} changes since ${lastSentVersion}`);
-
+    const changes = await this.getLocalChanges(this.lastSentVersion);
+    if (changes.length == 0) {
+      return 0;
+    }
+    console.log(`Sending ${changes.length} changes since ${this.lastSentVersion}`);
     try {
     await this.client.mergeChanges({
       changes: changes.map(c => ({
@@ -78,15 +81,16 @@ class Syncer {
     }
 
   }
-
-  async pullChanges() {
-    const lastSeenVersion = BigInt(
+  get lastSeenVersion() {
+    return BigInt(
       localStorage.getItem(
         this.lastSeenVersionKey(),
       ) ?? "0"
     );
+  }
+  async pullChanges() {
     const changeRes = await this.client.getChanges({
-      dbVersion: lastSeenVersion,
+      dbVersion: this.lastSeenVersion,
       siteId: this.args.siteId,
     })
 
@@ -124,6 +128,11 @@ class Syncer {
   destroy() {
     this.args.applyChangesetStmt.finalize(null);
     this.args.pullChangesetStmt.finalize(null);
+  }
+  reset() {
+    localStorage.removeItem(this.lastSeenVersionKey());
+    localStorage.removeItem(this.lastSentVersionKey());
+
   }
 }
 

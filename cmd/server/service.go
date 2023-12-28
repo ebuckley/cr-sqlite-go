@@ -15,7 +15,7 @@ var setup = sync.OnceFunc(func() {
 
 func newSyncService() (*crsql.SyncService, error) {
 	setup()
-	db, err := crsql.New(":memory:", schema)
+	db, err := crsql.New("/home/ersin/db.sqlite", schema)
 	if err != nil {
 		return nil, err
 	}
